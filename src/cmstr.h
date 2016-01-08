@@ -4,18 +4,20 @@
 
 #include <stdint.h>
 
-enum CMInnerEncoding {
-    CMIE_LATIN1,
-    CMIE_UCS2,
-    CMIE_UCS4,
-};
-
 typedef uint8_t  CM_UCS1;
 typedef uint16_t CM_UCS2;
 typedef uint32_t CM_UCS4;
 
+enum CMEncoding {
+    CME_UTF8 = 0,
+    CME_LATIN1 = sizeof(CM_UCS1),
+    CME_UCS2 = sizeof(CM_UCS2),
+    CME_UCS4 = sizeof(CM_UCS4),
+    CME_UTF8_RAW = 4096,
+};
+
 typedef struct CMString {
-    enum CMInnerEncoding encoding;
+    enum CMEncoding encoding;
     int length;
     union {
          void *any;
@@ -24,9 +26,14 @@ typedef struct CMString {
           CM_UCS4 *ucs4;
     } data;
     struct u8cache {
-        uint8_t *u8str;
+        uint8_t *str;
         int raw_size;
-    };
+    } u8cache;
 } CMString;
+
+CMString* cmstr_new(void* str, int size, int encoding);
+int cmstr_free(CMString* str);
+
+uint32_t cms_at(CMString* str, int index);
 
 #endif
